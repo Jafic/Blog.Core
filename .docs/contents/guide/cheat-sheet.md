@@ -250,18 +250,16 @@ models = _mapper.Map<BlogViewModels>(blogArticle);
 
 ## CORS
 
-本项目使用的是 `nginx` 跨域代理，但是同时也是支持 `CORS` 代理的，  
-具体的代码可以查看：  
-`Blog.Core\Blog.Core\Extensions` 文件夹下的 `CorsSetup.cs` 扩展类，  
-通过在 `appsettings.json` 文件中配置指定的前端项目 `ip:端口` ，来实现跨域：  
+在线项目使用的是 `nginx` 跨域代理，但是同时也是支持 `CORS` 代理：    
+1、注入服务 `services.AddCorsSetup();` 具体代码 `Blog.Core\Blog.Core\Extensions` 文件夹下的 `CorsSetup.cs` 扩展类；  
+2、配置中间件 `app.UseCors("LimitRequests");` ,要注意中间件顺序；  
+3、配置自己项目的前端端口，通过在 `appsettings.json` 文件中配置自己的前端项目 `ip:端口` ，来实现跨域：  
 
 ```
-
   "Startup": {
     "Cors": {
       "IPs": "http://127.0.0.1:2364,http://localhost:2364,http://localhost:8080,http://localhost:8021,http://localhost:1818"
-    },
-    "ApiName": "Blog.Core"
+    }
   },
 
 ```
@@ -385,29 +383,47 @@ models = _mapper.Map<BlogViewModels>(blogArticle);
 
 
 ## Filter
-精力有限，还是更新中...   
-如果你愿意帮忙，可以直接在GitHub中，提交pull request，   
-我会在后边的贡献者页面里，列出你的名字和项目地址做推广
+
+项目中一共有四个过滤器
+```
+1、GlobalAuthorizeFilter.cs —— 全局授权配置，添加后，就可以不用在每一个控制器上添加 [Authorize] 特性，但是3.1版本好像有些问题，【暂时放弃使用】；
+2、GlobalExceptionFilter.cs —— 全局异常处理，实现 actionContext 级别的异常日志收集；
+3、GlobalRoutePrefixFilter.cs —— 全局路由前缀公约，统计在路由上加上前缀；
+4、UseServiceDIAttribute.cs —— 测试注入，【暂时无用】；
+```
+文件地址在 `.\Blog.Core\Filter` 文件夹下，其中核心的是 `2` 个，重点使用的是 `1` 个 —— 全局异常错误日志 `GlobalExceptionsFilter`:
+通过注册在 `MVC` 服务 `services.AddControllers()` 中，实现全局异常过滤：
+```
+ services.AddControllers(o =>
+ {
+     // 全局异常过滤
+     o.Filters.Add(typeof(GlobalExceptionsFilter));
+     // 全局路由权限公约
+     //o.Conventions.Insert(0, new GlobalRouteAuthorizeConvention());
+     // 全局路由前缀，统一修改路由
+     o.Conventions.Insert(0, new GlobalRoutePrefixFilter(new RouteAttribute(RoutePrefix.Name)));
+ })
+```
+
+
 
 ## Framework 
 
-精力有限，还是更新中...   
-如果你愿意帮忙，可以直接在GitHub中，提交pull request，   
-我会在后边的贡献者页面里，列出你的名字和项目地址做推广
-## GlobalExceptionsFilter
+项目采用 `服务+仓储+接口` 的多层结构，使用依赖注入，并且通过解耦项目，较完整的实现了 `DIP` 原则：  
+高层模块不应该依赖于底层模块，二者都应该依赖于抽象。  
+抽象不应该依赖于细节，细节应该依赖于抽象。  
 
-精力有限，还是更新中...   
-如果你愿意帮忙，可以直接在GitHub中，提交pull request，   
-我会在后边的贡献者页面里，列出你的名字和项目地址做推广
-## HttpContext
+同时项目也封装了:  
+`CodeFirst` 初始化数据库以及数据；  
+`DbFirst` 根据数据库（支持多库），生成多层代码，算是简单代码生成器；  
+其他功能，[核心功能与进度](http://apk.neters.club/.doc/guide/#%E5%8A%9F%E8%83%BD%E4%B8%8E%E8%BF%9B%E5%BA%A6)
 
-精力有限，还是更新中...   
-如果你愿意帮忙，可以直接在GitHub中，提交pull request，   
-我会在后边的贡献者页面里，列出你的名字和项目地址做推广
 
-## Log4 
+ 
 
-通过集成，完美配合 `NetCore` 官方的 `ILogger<T>` 接口:
+## Log 
+
+通过集成 `Log4Net` 组件，完美配合 `NetCore` 官方的 `ILogger<T>` 接口，实现对日志的管控，引用 `nuget` 包 `Microsoft.Extensions.Logging.Log4Net.AspNetCore`:
 Program.cs
 ```
   webBuilder
@@ -432,12 +448,17 @@ Program.cs
 
 然后就可以使用了。  
 
+> 注意：日志 其实是分为两部分的：  
+> netcore输出(控制台、输出窗口等) 和 `ILogger` 持久化  
+> 两者对应配置也不一样，就比如上边的过滤，是针对日志持久化的，如果想要对控制台进行控制，需要配置 `appsettings.json` 中的 `Logging` 节点
+
 
 ## MemoryCache
 
 精力有限，还是更新中...   
 如果你愿意帮忙，可以直接在GitHub中，提交pull request，   
 我会在后边的贡献者页面里，列出你的名字和项目地址做推广
+
 ## Middleware
 
 精力有限，还是更新中...   
@@ -520,12 +541,17 @@ Program.cs
 
 ## UserInfo 
 
-项目中封装了获取用户信息的方法，在 `.\Blog.Core.Common\HttpContextUser` 文件夹下 `AspNetUser.cs` 实现类和 `IUser.cs` 接口。  
-如果使用，首先需要注入相应的服务，参见：`.\Blog.Core\Extensions` 文件夹下的 `HttpContextSetup.cs`；    
-然后，就直接在控制器中，注入服务使用 `IUser.cs` 即可；  
 
-> 注意：如果要想获取指定的服务，必须要 `Header` 中传递 `Token` ，这是肯定的。  
-> 此外，不一定需要添加 `[Authorize]` 特性，我的 `AspNetUser.cs` 方法中，有一个直接从 `Header` 中解析的方法 `List<string> GetUserInfoFromToken(string ClaimType);`：
+项目中封装了获取用户信息的代码：  
+在 `.\Blog.Core.Common\HttpContextUser` 文件夹下 `AspNetUser.cs` 实现类和 `IUser.cs` 接口。  
+
+如果使用，首先需要注册相应的服务，参见：`.\Blog.Core\Extensions` 文件夹下的 `HttpContextSetup.cs`；    
+然后，就直接在控制器构造函数中，注入接口 `IUser` 即可；  
+
+> `注意`：  
+> 1、如果要想获取指定的服务，必须登录，也就是必须要在 `Header` 中传递有效 `Token` ，这是肯定的。    
+> 2、如果要获取用户信息，一定要在中间件 `app.UseAuthentication()` 之后（不要问为什么），控制器肯定在它之后，所以能获取到；  
+> 3、`【并不是】`一定需要添加 `[Authorize]` 特性，如果你加了这个特性，可以直接获取，但是如果不加，可以从我的 `AspNetUser.cs` 方法中，有一个直接从 `Header` 中解析的方法 `List<string> GetUserInfoFromToken(string ClaimType);`：
 
 ```
  public string GetToken()

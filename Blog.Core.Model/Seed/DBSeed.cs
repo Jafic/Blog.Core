@@ -1,27 +1,20 @@
 ﻿using Blog.Core.Common;
 using Blog.Core.Common.DB;
 using Blog.Core.Common.Helper;
+using Blog.Core.Model.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blog.Core.Model.Models
+namespace Blog.Core.Model.Seed
 {
     public class DBSeed
     {
-        // 这是我的在线demo数据，比较多，且杂乱
-        // gitee 源数据
         private static string SeedDataFolder = "BlogCore.Data.json/{0}.tsv";
-
-
-        // 这里我把重要的权限数据提出来的精简版，默认一个Admin_Role + 一个管理员用户，
-        // 然后就是菜单+接口+权限分配，注意没有其他博客信息了，下边seeddata 的时候，删掉即可。
-
-        // gitee 源数据
-        private static string SeedDataFolderMini = "BlogCore.Mini.Data.json/{0}.tsv";
 
 
         /// <summary>
@@ -40,7 +33,6 @@ namespace Blog.Core.Model.Models
                 }
 
                 SeedDataFolder = Path.Combine(WebRootPath, SeedDataFolder);
-                SeedDataFolderMini = Path.Combine(WebRootPath, SeedDataFolderMini);
 
                 Console.WriteLine("************ Blog.Core DataBase Set *****************");
                 Console.WriteLine($"Is multi-DataBase: {Appsettings.app(new string[] { "MutiDBEnabled" })}");
@@ -79,36 +71,32 @@ namespace Blog.Core.Model.Models
                 }
 
                 Console.WriteLine();
-                Console.WriteLine($"Create Database(The Db Id:{MyContext.ConnId})...");
-                // 创建数据库
-                myContext.Db.DbMaintenance.CreateDatabase();
 
+
+                // 创建数据库
+                Console.WriteLine($"Create Database(The Db Id:{MyContext.ConnId})...");
+                myContext.Db.DbMaintenance.CreateDatabase();
                 ConsoleHelper.WriteSuccessLine($"Database created successfully!");
 
+
+                // 创建数据库表，遍历指定命名空间下的class，
+                // 注意不要把其他命名空间下的也添加进来。
                 Console.WriteLine("Create Tables...");
-                // 创建表
-                myContext.CreateTableByEntity(false,
-                    typeof(Advertisement),
-                    typeof(BlogArticle),
-                    typeof(Guestbook),
-                    typeof(Module),
-                    typeof(ModulePermission),
-                    typeof(OperateLog),
-                    typeof(PasswordLib),
-                    typeof(Permission),
-                    typeof(Role),
-                    typeof(RoleModulePermission),
-                    typeof(sysUserInfo),
-                    typeof(Topic),
-                    typeof(TopicDetail),
-                    typeof(TasksQz),
-                    typeof(UserRole));
-
-                // 后期单独处理某些表
-                // myContext.Db.CodeFirst.InitTables(typeof(sysUserInfo));
-
+                var modelTypes = from t in Assembly.GetExecutingAssembly().GetTypes()
+                        where t.IsClass && t.Namespace == "Blog.Core.Model.Models"
+                        select t;
+                modelTypes.ToList().ForEach(t =>
+                {
+                    if (!myContext.Db.DbMaintenance.IsAnyTable(t.Name))
+                    {
+                        Console.WriteLine(t.Name);
+                        myContext.Db.CodeFirst.InitTables(t);
+                    }
+                });
                 ConsoleHelper.WriteSuccessLine($"Tables created successfully!");
                 Console.WriteLine();
+
+
 
                 if (Appsettings.app(new string[] { "AppSettings", "SeedDBDataEnabled" }).ObjToBool())
                 {
@@ -127,15 +115,15 @@ namespace Blog.Core.Model.Models
                     #endregion
 
 
-                    #region Module
-                    if (!await myContext.Db.Queryable<Module>().AnyAsync())
+                    #region Modules
+                    if (!await myContext.Db.Queryable<Modules>().AnyAsync())
                     {
-                        myContext.GetEntityDB<Module>().InsertRange(JsonHelper.ParseFormByJson<List<Module>>(FileHelper.ReadFile(string.Format(SeedDataFolder, "Module"), Encoding.UTF8)));
-                        Console.WriteLine("Table:Module created success!");
+                        myContext.GetEntityDB<Modules>().InsertRange(JsonHelper.ParseFormByJson<List<Modules>>(FileHelper.ReadFile(string.Format(SeedDataFolder, "Modules"), Encoding.UTF8)));
+                        Console.WriteLine("Table:Modules created success!");
                     }
                     else
                     {
-                        Console.WriteLine("Table:Module already exists...");
+                        Console.WriteLine("Table:Modules already exists...");
                     }
                     #endregion
 
@@ -251,7 +239,7 @@ namespace Blog.Core.Model.Models
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception("1、如果使用的是Mysql，生成的数据库字段字符集可能不是utf8的，手动修改下，或者尝试方案：删掉数据库，在连接字符串后加上CharSet=UTF8mb4，重新生成数据库. \n 2、其他错误：" + ex.Message);
             }
         }
     }

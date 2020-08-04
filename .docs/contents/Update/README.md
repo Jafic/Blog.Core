@@ -1,6 +1,44 @@
 ﻿
 ## 更新日志
 
+### 2020-07-03
+
+> 更新：`DbFirstController` 生成四层文件，目前新增支持 `控制器Controller` 文件的输出；
+
+
+### 2020-06-22
+
+> 项目更新：将服务扩展和自定义中间件，单独封装一层 `Blog.Core.Extensions` ，更解耦。
+
+
+
+### 2020-06-08
+
+> 简单项目更新：生成数据库表结构的时候，利用反射机制，自动生成固定命名空间 `Blog.Core.Model.Models` 下的全部实体.  
+> 同时判断表是否存在，如果存在下次不再重复生成。
+
+
+### 2020-06-06
+
+项目更新：更新项目模板 `Update Blog.Core.Webapi.Template.2.1.0.nupkg` [1a726f8](https://github.com/anjoy8/Blog.Core/commit/1a726f890e527c978982071462e82db4478632f0)，更新项目即可 。    
+> 1、配置内容展示到控制台；  
+> 2、简化封装 `Startup.cs` 类文件；  
+> 3、`DbFirst` 模式支持多库模式；  
+> 4、`Log4net` 讲异常和 `Info` 分开；  
+> 5、修复 `BlogLogAop` 偶尔卡顿问题；  
+> 6、将生成种子数据和任务调度功能，封装到中间件；  
+> 7、获取当前项目在服务器中的运行信息；  
+> 8、删除所有的不需要的 `using` 指令；  
+
+
+
+
+### 2020-05-29
+项目启动开启 `QuzrtzNet` 调度任务，并且在 `Admin` 后台管理中配置操作界面；  
+> 内容更新：封装生成种子数据的入口方法；   
+
+
+
 ### 2020-05-12
 修复：支持多库模式下，生成项目模板代码 `DbFirstController`  [102c6d6](https://github.com/anjoy8/Blog.Core/commit/102c6d6bfcafd06bf5241844759dea5e7a6815da) 
 > 注意：`T4` 模板不能此功能，一次只能一个数据库，且只能 `SqlServer`

@@ -19,6 +19,16 @@ Gitee（国内） 下载 [https://gitee.com/laozhangIsPhi/Blog.Core](https://git
 
 
 
+
+## CodeFirst 与 DbFirst
+1、项目同时支持两个常见开发模式：`CodeFirst` 和 `DbFirst`；  
+2、首先 如果你是第一次下载我的项目，肯定是想要浏览效果和直接使用对应的权限相关的内容，这个时候肯定需要用到数据库表结构，那就肯定需要 `CodeFirst` ，只需要在`appsettings.json` 里配置好数据库连接字符串（下文会说到如何配置），就能正确运行；  
+3、浏览器查看效果，或者配合 `Admin` 项目查看效果后，如果感觉项目可行，并打算在此基础上二次开发，那肯定会在你刚刚创建的数据库种去创建新的表结构，这个时候就需要使用 `DbFirst` 模式，来生成四层项目问题：Model+Service+Repository等；  
+4、你可以使用T4模板，但是我更建议使用 `/api/DbFirst/GetFrameFiles` 接口来生成，不仅支持多种类型的数据库，还支持同时多库模式的输出；    
+5、如果你不想用我的表结构和实体类，在项目启动的时候，把配置文件的 `SeedDBEnabled`节点设置成False即可，然后配置对应的你自己的数据库连接字符串，比如是商城的，然后使用 `/api/DbFirst/GetFrameFiles` 接口来生成你的数据库四层类文件；  
+
+
+
 ## 如何配置数据库连接字符串
 
 1、打开 `Blog.Core` 项目下的 `appsettings.json` 文件；  
@@ -67,7 +77,7 @@ Gitee（国内） 下载 [https://gitee.com/laozhangIsPhi/Blog.Core](https://git
 ```
 
 ## 如何配置项目端口号
-1、在 `Blog.Core` 层下的 `appsettings.json` 文件中，将 ` urls `  中的`8081`端口，修改为自己想要的端口号；    
+1、在 `Blog.Core` 层下的 `program.cs` 文件中，将 `8081`端口，修改为自己想要的端口号；    
 2、或者在 `launchSettings.json` 中设置；
 
 ## 如何项目重命名
@@ -93,9 +103,12 @@ Gitee（国内） 下载 [https://gitee.com/laozhangIsPhi/Blog.Core](https://git
 
 
 ## 新增数据库表，如何反向生成四层文件
-1、可以通过 `T4` 模板来生成，是 `Blog.Core.FrameWork` 层的使用；  
-2、也可以通过 `Sqlsugar` 所带的方法来实现，具体查看 `Controller` 层下的 `DbFirstController.cs`；  
-3、总体操作过程，可以参考我的视频：https://www.bilibili.com/video/av77612407?p=2；   
+1、可以通过 `T4` 模板来生成，在 `Blog.Core.FrameWork` 层，使用方法: [9757999.html](https://www.cnblogs.com/laozhang-is-phi/p/9757999.html#autoid-4-3-0) ；  
+> 注意：这种方案，目前默认的只能是 `SqlServer` ，其他类型的数据库，可以看上边文章中的代码，或者群文件里对应的代码。  
+
+2、也可以通过 `Sqlsugar` 所带的方法来实现 `DbFirst`，具体查看 `Controller` 层下的 `DbFirstController.cs`；   
+
+3、总体操作过程，可以参考我的视频：[av77612407](https://www.bilibili.com/video/av77612407?p=2) ；   
 
 
 ## 发布与部署

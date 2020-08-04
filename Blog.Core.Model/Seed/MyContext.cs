@@ -1,11 +1,8 @@
-﻿using Blog.Core.Common;
-using Blog.Core.Common.DB;
+﻿using Blog.Core.Common.DB;
 using SqlSugar;
 using System;
-using System.Collections.Generic;
-using System.IO;
 
-namespace Blog.Core.Model.Models
+namespace Blog.Core.Model.Seed
 {
     public class MyContext
     {

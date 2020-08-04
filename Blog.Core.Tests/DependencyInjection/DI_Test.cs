@@ -4,23 +4,24 @@ using Autofac.Extras.DynamicProxy;
 using AutoMapper;
 using Blog.Core.AuthHelper;
 using Blog.Core.Common;
+using Blog.Core.Common.AppConfig;
 using Blog.Core.Common.DB;
 using Blog.Core.Common.LogHelper;
+using Blog.Core.IRepository.Base;
 using Blog.Core.IServices;
-using Blog.Core.Model.Models;
+using Blog.Core.Model.Seed;
+using Blog.Core.Repository.Base;
 using Blog.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Xunit;
-using System;
 using System.Security.Claims;
-using System.Configuration;
-using Blog.Core.Common.AppConfig;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
+using Xunit;
 
 namespace Blog.Core.Tests
 {
@@ -115,8 +116,8 @@ namespace Blog.Core.Tests
             services.AddSingleton(new Appsettings(basePath));
             services.AddSingleton(new LogLock(basePath));
             services.AddSingleton<IRedisCacheManager, RedisCacheManager>();
-            services.AddScoped<Blog.Core.Model.Models.DBSeed>();
-            services.AddScoped<Blog.Core.Model.Models.MyContext>();
+            services.AddScoped<DBSeed>();
+            services.AddScoped<MyContext>();
 
             //读取配置文件
             var symmetricKeyAsBase64 = AppSecretConfig.Audience_Secret_String;
@@ -165,6 +166,9 @@ namespace Blog.Core.Tests
             //builder.RegisterType<AdvertisementServices>().As<IAdvertisementServices>();
 
             //指定已扫描程序集中的类型注册为提供所有其实现的接口。
+
+            builder.RegisterGeneric(typeof(BaseRepository<>)).As(typeof(IBaseRepository<>)).InstancePerDependency();//注册仓储
+
 
             var servicesDllFile = Path.Combine(basePath, "Blog.Core.Services.dll");
             var assemblysServices = Assembly.LoadFrom(servicesDllFile);
