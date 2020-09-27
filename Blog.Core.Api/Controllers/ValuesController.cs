@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using Blog.Core.Common;
 using Blog.Core.Common.HttpContextUser;
 using Blog.Core.Common.HttpRestSharp;
 using Blog.Core.Common.WebApiClients.HttpApis;
@@ -13,13 +10,17 @@ using Blog.Core.Model.Models;
 using Blog.Core.Model.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace Blog.Core.Controllers
 {
     /// <summary>
     /// Values控制器
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     //[Authorize]
     //[Authorize(Roles = "Admin,Client")]
@@ -50,7 +51,14 @@ namespace Blog.Core.Controllers
         /// <param name="passwordLibServices"></param>
         /// <param name="blogApi"></param>
         /// <param name="doubanApi"></param>
-        public ValuesController(IBlogArticleServices blogArticleServices, IMapper mapper, IAdvertisementServices advertisementServices, Love love, IRoleModulePermissionServices roleModulePermissionServices, IUser user, IPasswordLibServices passwordLibServices, IBlogApi blogApi, IDoubanApi doubanApi)
+        public ValuesController(IBlogArticleServices blogArticleServices
+            , IMapper mapper
+            , IAdvertisementServices advertisementServices
+            , Love love
+            , IRoleModulePermissionServices roleModulePermissionServices
+            , IUser user, IPasswordLibServices passwordLibServices
+            , IBlogApi blogApi
+            , IDoubanApi doubanApi)
         {
             // 测试 Authorize 和 mapper
             _mapper = mapper;
@@ -65,6 +73,8 @@ namespace Blog.Core.Controllers
             _blogApi = blogApi;
             _doubanApi = doubanApi;
             // 测试AOP加载顺序，配合 return
+            _blogArticleServices = blogArticleServices;
+            // 测试redis消息队列
             _blogArticleServices = blogArticleServices;
         }
         /// <summary>
@@ -119,11 +129,17 @@ namespace Blog.Core.Controllers
             // 测试service层返回异常
             _advertisementServices.ReturnExp();
 
-            Love love = null;
-            love.SayLoveU();
-
             return data;
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task RedisMq([FromServices] IRedisBasketRepository _redisBasketRepository)
+        {
+            var msg = $"这里是一条日志{DateTime.Now}";
+            await _redisBasketRepository.ListLeftPushAsync(RedisMqKey.Loging, msg);
+        }
+
         /// <summary>
         /// Get(int id)方法
         /// </summary>
@@ -227,9 +243,9 @@ namespace Blog.Core.Controllers
         /// <returns></returns>
         [HttpGet("RestsharpGet")]
         [AllowAnonymous]
-        public TestRestSharpGetDto RestsharpGet()
+        public MessageModel<BlogViewModels> RestsharpGet()
         {
-            return HttpHelper.GetApi<TestRestSharpGetDto>("http://apk.neters.club/", "api/Blog/DetailNuxtNoPer", "id=1");
+            return HttpHelper.GetApi<MessageModel<BlogViewModels>>("http://apk.neters.club/", "api/Blog/DetailNuxtNoPer", "id=1");
         }
         /// <summary>
         /// 测试http请求 RestSharp Post

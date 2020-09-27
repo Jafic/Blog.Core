@@ -21,6 +21,9 @@ namespace Blog.Core.Extensions
                 Console.OutputEncoding = Encoding.GetEncoding("GB2312");
 
                 Console.WriteLine("************ Blog.Core Config Set *****************");
+               
+                ConsoleHelper.WriteSuccessLine("Current environment: " + Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+
                 // 授权策略方案
                 if (Permissions.IsUseIds4)
                 {
@@ -99,6 +102,16 @@ namespace Blog.Core.Extensions
                 else
                 {
                     ConsoleHelper.WriteSuccessLine($"IpRateLimiting: True");
+                }
+
+                // redis消息队列
+                if (!Appsettings.app("Startup", "RedisMq", "Enabled").ObjToBool())
+                {
+                    Console.WriteLine($"Redis MQ: False");
+                }
+                else
+                {
+                    ConsoleHelper.WriteSuccessLine($"Redis MQ: True");
                 }
 
                 // 多库

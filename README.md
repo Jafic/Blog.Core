@@ -10,8 +10,9 @@
 &nbsp;
 
 
-![Logo](http://apk.neters.club/logocore.png)
-![MVP](http://apk.neters.club/MVP_Logo_Horizontal_Preferred_Cyan300_CMYK_72ppi.png)
+![Logo](http://apk.neters.club/logocore.png)  
+
+[![MVP](http://apk.neters.club/MVP_Logo_Horizontal_Preferred_Cyan300_CMYK_72ppi.png)](https://mvp.microsoft.com/zh-cn/PublicProfile/5003704?fullName=anson%20zhang)
 
 
 BCVP（Blog.Core&Vue Project）开箱即用的企业级前后端分离【 .NET Core3.1 Api + Vue 2.x + RBAC】权限框架。 
@@ -23,7 +24,7 @@ BCVP（Blog.Core&Vue Project）开箱即用的企业级前后端分离【 .NET C
 框架模块：  
 - [x] 采用`仓储+服务+接口`的形式封装框架；
 - [x] 异步 async/await 开发；
-- [x] 接入 SqlSugar 提供ORM，封装数据库操作；
+- [x] 接入国产数据库ORM组件 —— SqlSugar，封装数据库操作；
 - [x] 支持自由切换多种数据库，Sqlite/SqlServer/MySql/PostgreSQL/Oracle；
 - [x] 实现项目启动，自动生成种子数据 ✨； 
 - [x] 五种日志记录，审计/异常/请求响应/服务操作/Sql记录等； 
@@ -48,8 +49,8 @@ BCVP（Blog.Core&Vue Project）开箱即用的企业级前后端分离【 .NET C
 - [x] 添加 IpRateLimiting 做 API 限流处理;
 - [x] 使用 Quartz.net 做任务调度;
 - [x] 支持 数据库`读写分离`和多库操作 ✨;
+- [x] 新增 Redis 消息队列 ✨;
 - [ ] 计划 - 设计支付宝/微信支付;
-- [ ] 计划 - Redis/RBMQ 消息队列;
 - [ ] 计划 - 数据部门权限;
 - [ ] 计划 - ES 搜索;
 
@@ -73,7 +74,8 @@ BCVP（Blog.Core&Vue Project）开箱即用的企业级前后端分离【 .NET C
 
 还在陆续整理中，不过基本操作都在,包括如何新手入门，配置数据，连接DB等等    
 
-[官方文档](http://apk.neters.club/.doc/)  
+[官方文档](http://apk.neters.club/.doc/)    
+[公众号重要文章+视频地址](https://mvp.neters.club/)    
 
 
 
@@ -163,8 +165,10 @@ BCVP（Blog.Core&Vue Project）开箱即用的企业级前后端分离【 .NET C
 
 ## 售后服务与支持  
 
-打赏支持，入微信群，随时随地解答我框架中（NetCore、Vue、DDD、IdentityServer4等）的疑难杂症。  
-打赏的时候，备注自己的微信号，我拉你进群，两天内没回应，QQ私聊我（3143422472）；  
+鼓励作者，简单打赏，入微信群，随时随地解答我框架中（NetCore、Vue、DDD、IdentityServer4等）的疑难杂症。     
+注意是核心的问题，基础内容我建议先自学，   
+如果不想看文章和视频，可以报我的个人学习班，三杯咖啡。   
+打赏的时候，备注自己的微信号，我拉你进群，两天内没回应，QQ私聊我（3143422472）；   
 
 [赞赏列表](http://apk.neters.club/.doc/Contribution/)  
 

@@ -50,7 +50,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\.editorconfig" Link=".editorconfig" />
 		<None Include="wwwroot\BlogCore.Data.json\BlogArticle.tsv" />
 		<None Include="wwwroot\BlogCore.Data.json\Modules.tsv" />
 		<None Include="wwwroot\BlogCore.Data.json\Permission.tsv" />
@@ -74,6 +73,9 @@
 
 	<ItemGroup>
 	  <None Update="Dockerfile">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="StopContainerImg.sh">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>

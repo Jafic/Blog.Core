@@ -39,13 +39,14 @@ namespace Blog.Core
         public void ConfigureServices(IServiceCollection services)
         {
             // 以下code可能与文章中不一样,对代码做了封装,具体查看右侧 Extensions 文件夹.
-            services.AddSingleton<IRedisCacheManager, RedisCacheManager>();
             services.AddSingleton(new Appsettings(Configuration));
             services.AddSingleton(new LogLock(Env.ContentRootPath));
 
             Permissions.IsUseIds4 = Appsettings.app(new string[] { "Startup", "IdentityServer4", "Enabled" }).ObjToBool();
 
             services.AddMemoryCacheSetup();
+            services.AddRedisCacheSetup();
+
             services.AddSqlsugarSetup();
             services.AddDbSetup();
             services.AddAutoMapperSetup();
@@ -56,6 +57,7 @@ namespace Blog.Core
             services.AddHttpContextSetup();
             services.AddAppConfigSetup();
             services.AddHttpApi();
+            services.AddRedisInitMqSetup();
 
             // 授权+认证 (jwt or ids4)
             services.AddAuthorizationSetup();
@@ -113,6 +115,8 @@ namespace Blog.Core
             app.UseIpLimitMildd();
             // 记录请求与返回数据 
             app.UseReuestResponseLog();
+            // 用户访问记录(必须放到外层，不然如果遇到异常，会报错，因为不能返回流)
+            app.UseRecordAccessLogsMildd();
             // signalr 
             app.UseSignalRSendMildd();
             // 记录ip请求
@@ -160,8 +164,6 @@ namespace Blog.Core
             //app.UseExceptionHandlerMidd();
             // 性能分析
             app.UseMiniProfiler();
-            // 用户访问记录
-            app.UseRecordAccessLogsMildd();
 
             app.UseEndpoints(endpoints =>
             {
